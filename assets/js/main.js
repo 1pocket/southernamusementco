@@ -68,14 +68,23 @@
   });
 
   // Quote form: submit to your lead list (Google Sheet / CRM) + email notification
-  const form = document.querySelector('#quoteForm');
+  // Works for the homepage quote form and the Sell Your Route form (data-lead-form).
+  const form = document.querySelector('#quoteForm, [data-lead-form]');
   const copyBtn = document.querySelector('#copyMessage');
   const endpoint = (window.SAC_LEAD_ENDPOINT || '').trim();
+  const leadType = (form?.dataset.leadType || '').trim();          // e.g. "Sell inquiry"
+  const leadTitle = (form?.dataset.leadTitle || 'New Quote Request — Southern Amusement Company, LLC').trim();
+
+  // Prefix the free-text message so sell inquiries stand out in the lead sheet/email.
+  function taggedMessage(raw){
+    const msg = String(raw || '').trim();
+    return leadType ? `[${leadType}] ${msg}` : msg;
+  }
 
   function buildMessage(){
     const data = new FormData(form);
     const lines = [
-      'New Quote Request — Southern Amusement Company, LLC',
+      leadTitle,
       '',
       `Name: ${data.get('name')}`,
       `Venue: ${data.get('venue')}`,
@@ -84,7 +93,7 @@
       `Email: ${data.get('email')}`,
       '',
       'Request:',
-      String(data.get('message') || '').trim(),
+      taggedMessage(data.get('message')),
     ];
     return lines.join('\n');
   }
@@ -114,7 +123,8 @@
       city: String(fd.get('city') || '').trim(),
       phone: String(fd.get('phone') || '').trim(),
       email: String(fd.get('email') || '').trim(),
-      message: String(fd.get('message') || '').trim(),
+      message: taggedMessage(fd.get('message')),
+      lead_type: leadType || 'Quote request',
       consent: String(fd.get('consent') || '').trim(),
       page_url: String(location.href),
       user_agent: String(navigator.userAgent),
@@ -152,7 +162,7 @@
     const result = await submitLead();
 
     if (result.ok) {
-      safeGtagEvent('lead_submit', { method: 'website_form' });
+      safeGtagEvent('lead_submit', { method: 'website_form', lead_type: leadType || 'quote' });
       showToast('Request sent — we’ll reach out soon');
       form.reset();
       return;
