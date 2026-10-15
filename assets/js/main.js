@@ -11,7 +11,7 @@
     toast.textContent = msg;
     toast.classList.add('show');
     window.clearTimeout(showToast._t);
-    showToast._t = window.setTimeout(() => toast.classList.remove('show'), 2200);
+    showToast._t = window.setTimeout(() => toast.classList.remove('show'), 4000);
   }
 
   function closeMenu(){
@@ -151,20 +151,70 @@
     return { ok: true };
   }
 
+  // Visible confirmation: swap the form for a success panel so people don't resubmit.
+  let submitting = false;
+  const submitBtn = form?.querySelector('button[type="submit"]');
+  const submitLabel = submitBtn ? submitBtn.textContent : 'Send';
+
+  function setBusy(busy){
+    submitting = busy;
+    if (submitBtn){
+      submitBtn.disabled = busy;
+      submitBtn.textContent = busy ? 'Sending…' : submitLabel;
+    }
+    if (copyBtn) copyBtn.disabled = busy;
+  }
+
+  function showSuccess(firstName){
+    const panel = document.createElement('div');
+    panel.className = 'form-success';
+    panel.setAttribute('role', 'status');
+    panel.setAttribute('tabindex', '-1');
+    const who = firstName ? `Thanks, ${firstName}.` : 'Thanks.';
+    const what = leadType ? 'your inquiry' : 'your request';
+    panel.innerHTML = `
+      <div class="form-success-icon" aria-hidden="true">✓</div>
+      <h3>Successfully submitted</h3>
+      <p>${who} We received ${what} and will get back to you within one business day. No need to send it again.</p>
+      <p class="tiny muted">Need us sooner? Call or text <a class="text-link" href="tel:+17312349797">(731) 234-9797</a>.</p>
+      <button class="btn btn-ghost" type="button" data-send-another>Send another</button>
+    `;
+    form.hidden = true;
+    form.insertAdjacentElement('afterend', panel);
+    panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    panel.focus({ preventScroll: true });
+    panel.querySelector('[data-send-another]').addEventListener('click', () => {
+      panel.remove();
+      form.hidden = false;
+      form.querySelector('input[name="name"]')?.focus();
+    });
+  }
+
   async function handleSubmit(e){
     e.preventDefault();
+    if (submitting) return;
     if(!form.checkValidity()){
       showToast('Please fill out the form first');
       form.reportValidity();
       return;
     }
 
-    const result = await submitLead();
+    const firstName = String(new FormData(form).get('name') || '').trim().split(/\s+/)[0];
+    setBusy(true);
+    let result;
+    try{
+      result = await submitLead();
+    }catch{
+      result = { ok: false, reason: 'network' };
+    }finally{
+      setBusy(false);
+    }
 
     if (result.ok) {
       safeGtagEvent('lead_submit', { method: 'website_form', lead_type: leadType || 'quote' });
-      showToast('Request sent — we’ll reach out soon');
+      showToast('Successfully submitted — we’ll reach out soon');
       form.reset();
+      showSuccess(firstName);
       return;
     }
 
@@ -172,8 +222,7 @@
     const msg = buildMessage();
     await copyText(msg);
     safeGtagEvent('lead_submit', { method: 'clipboard_fallback' });
-    showToast('Copied as a backup — paste into text/email');
-    form.reset();
+    showToast('Couldn’t send — details copied, please text them to (731) 234-9797');
   }
 
   async function handleCopy(){
