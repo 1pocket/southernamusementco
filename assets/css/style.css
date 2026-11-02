@@ -1025,3 +1025,87 @@ label.checkbox input{
 .form-success .btn{ margin-top: 12px; }
 button:disabled{ opacity: .6; cursor: not-allowed; transform: none; }
 .form[hidden]{ display:none; }
+
+/* New-install badge on gallery cards */
+.media-card-badge{
+  display:inline-block;
+  margin-bottom: 8px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--accent);
+  box-shadow: 0 0 14px rgba(64,196,255,.45);
+}
+/* Two portrait photos side by side in a single-width card */
+.media-card-img.collage-tall{ aspect-ratio: 1 / 1; }
+.collage-4 img:nth-child(3){ object-position: center 40%; }
+
+/* Install video + truck photo */
+.setup-promo{ margin-top: 26px; }
+.setup-promo h3{ margin: 0 0 10px; font-size: 1.5rem; letter-spacing: -0.01em; }
+.setup-media{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.setup-media .promo-media{
+  width:100%;
+  aspect-ratio: 9 / 16;
+  max-height: 520px;
+  background: rgba(0,0,0,.35);
+}
+.setup-media video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+@media (max-width: 520px){
+  .setup-media{ gap: 8px; }
+  .setup-media .promo-cap{ left:8px; bottom:8px; font-size:.68rem; padding:4px 8px; }
+}
+
+/* About: Chase & Bill feature photo beside team cards */
+.team-wrap{
+  display:grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  gap: 18px;
+  align-items: stretch;
+  margin: 8px 0 22px;
+}
+.team-wrap .team{
+  grid-template-columns: 1fr;
+  margin: 0;
+  align-content: center;
+}
+.team-feature{
+  position:relative;
+  margin:0;
+  overflow:hidden;
+  border-radius: var(--radius2);
+  border: 1px solid var(--border);
+  aspect-ratio: 4 / 5;
+  box-shadow: var(--shadow);
+}
+.team-feature img{ width:100%; height:100%; object-fit:cover; object-position: center 35%; display:block; }
+.team-feature figcaption{
+  position:absolute;
+  left:12px; bottom:12px;
+  max-width: calc(100% - 24px);
+  font-size:.78rem;
+  font-weight:700;
+  padding:6px 10px;
+  border-radius:999px;
+  color: var(--text);
+  background: rgba(10,12,16,.75);
+  border:1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(6px);
+}
+@media (max-width: 900px){
+  .team-wrap{ grid-template-columns: 1fr; }
+  .team-feature{ max-width: 520px; width:100%; margin-inline:auto; }
+}
