@@ -1109,3 +1109,19 @@ button:disabled{ opacity: .6; cursor: not-allowed; transform: none; }
   .team-wrap{ grid-template-columns: 1fr; }
   .team-feature{ max-width: 520px; width:100%; margin-inline:auto; }
 }
+
+/* Full-width gallery card: four portrait photos in a row */
+.media-card-full{ grid-column: 1 / -1; }
+.media-card-img.collage-4w{
+  aspect-ratio: 12 / 5;
+  grid-template-columns: repeat(4, 1fr);
+}
+.collage-4w img:nth-child(4){ object-position: 62% center; }
+@media (max-width: 900px){
+  .media-card-full{ grid-column: auto; }
+  .media-card-img.collage-4w{
+    aspect-ratio: 3 / 4;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+  }
+}
